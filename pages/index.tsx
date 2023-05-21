@@ -8,37 +8,30 @@ import {
     Image,
     InputGroup,
     InputLeftElement,
-    Container,
-    Card,
     MenuButton,
     MenuList,
     Menu,
     MenuItem
 } from '@chakra-ui/react'
-import { User } from '../components/user'
-import { Header } from '../components/header'
 import { BsChatLeftTextFill } from 'react-icons/bs'
 import { MdMoreVert } from 'react-icons/md'
 import { BiSearch } from 'react-icons/bi'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { ChatList } from '../components/chatListItem'
 import { ChatIntro } from '../components/chatIntro'
 import { ChatWindow } from '../components/chatWindow'
-import axios from 'axios'
 import { Context } from '../context/context'
-import {useContext} from 'react'
-import { getSession, signOut } from 'next-auth/react'
-import { getServerSession } from 'next-auth'
-import { authOptions } from './api/auth/[...nextauth]'
+import { useContext } from 'react'
+import { signOut, useSession } from 'next-auth/react'
 import { io } from 'socket.io-client'
-
-
+import { User } from '../types/user'
 
 const Home: NextPage = () => {
-    const {chatList}: any = useContext(Context)
-    const [activeChat, setActiveChat] = useState({})
+    const { data: session } = useSession()
+    const { chatList }: any = useContext(Context)
+    const [activeChat, setActiveChat] = useState<User | undefined>(undefined)
     const [socket] = useState(() => io('http://localhost:5000'))
-    
+
     return (
         <Box bg={'#ededed'} display={'flex'} h={'100vh'}>
             <Box
@@ -63,7 +56,8 @@ const Home: NextPage = () => {
                         cursor={'pointer'}
                         src="https://www.w3schools.com/howto/img_avatar2.png"
                     />
-                    <Flex alignItems={'center'} gap={10}>
+                    <Text>Olá, {session?.user.user.name}</Text>
+                    <Flex alignItems={'center'}>
                         <BsChatLeftTextFill color={'#919191'} size={20} cursor={'pointer'} />
                         <Menu>
                             <MenuButton
@@ -107,14 +101,14 @@ const Home: NextPage = () => {
                         }
                     }}
                 >
-                    {chatList.map((item, key) => (
+                    {chatList.map((item: User, key: number) => (
                         <ChatList key={key} onClick={() => setActiveChat(chatList[key])} data={item} />
                     ))}
                 </Box>
             </Box>
             <Box w={'100%'} display={'flex'}>
-                {activeChat._id !== undefined && <ChatWindow socket={socket} data={activeChat} />}
-                {activeChat._id === undefined && <ChatIntro />}
+                {activeChat?._id !== undefined && <ChatWindow socket={socket} data={activeChat} />}
+                {activeChat?._id === undefined && <ChatIntro />}
             </Box>
         </Box>
     )
@@ -122,23 +116,21 @@ const Home: NextPage = () => {
 
 export default Home
 
-export async function getServerSideProps(context) {
-    const session = await getSession(context)
+// export async function getServerSideProps(context) {
+//     const session = await getSession(context)
 
-    if(!session) {
-        return {
-            redirect:{
-                destination: '/login',
-                permanent: false
-            }
-        }
-    }
+//     if (!session) {
+//         return {
+//             redirect: {
+//                 destination: '/login',
+//                 permanent: false
+//             }
+//         }
+//     }
 
-    return {
-        props: {
-          user: session.user,
-        },
-      };
-
-}
-
+//     return {
+//         props: {
+//             user: session.user
+//         }
+//     }
+// }

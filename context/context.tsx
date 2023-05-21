@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { useSession } from 'next-auth/react'
 import { createContext } from 'react'
 import { useState, useEffect } from 'react'
 
@@ -11,7 +12,9 @@ interface ContextType {}
 export const Context = createContext<ContextType>({} as ContextType)
 
 export const ContextProvider = ({ children }: ContextProps) => {
+    const {data: session} = useSession()
     const [chatList, setChatList] = useState([])
+
 
     async function fetchUsers() {
         try {

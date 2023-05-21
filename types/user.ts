@@ -4,5 +4,10 @@ export interface User {
     email: string;
     password: string;
     cpf: string;
-    messages: messages[];
+    createdAt: Date;
+    messages: Message[];
+}
+
+export interface Message {
+    message: string
 }

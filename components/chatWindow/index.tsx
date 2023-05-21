@@ -5,22 +5,23 @@ import { AiFillExclamationCircle, AiOutlineSend } from 'react-icons/ai'
 import { MdMoreVert, MdOutlineEmojiEmotions } from 'react-icons/md'
 import { MdClose } from 'react-icons/md'
 import EmojiPicker from 'emoji-picker-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { MessageItem } from '../MessageItem'
 import { io } from 'socket.io-client'
 import { useSession } from 'next-auth/react'
 import socket from './Socket'
+import axios from 'axios'
 
 export function ChatWindow({ data, fetchUsers, socket }: any) {
     const [emojiOpen, setEmojiOpen] = useState(false)
     const [text, setText] = useState('')
-    const [messages, setMessages] = useState([])
-
-    // const { data: session } = useSession()
+    const [messages2, setMessages2] = useState<any[]>([])
+    const { data: session } = useSession()
+    const idSender = session?.user.user._id
 
     const enviarMessage = () => {
         const message = {
-            sender: '6466353e452141fdb7f99020',
+            sender: idSender,
             recipient: data._id,
             message: text
         }
@@ -28,15 +29,38 @@ export function ChatWindow({ data, fetchUsers, socket }: any) {
         setText('')
     }
 
+    const findAllMessage = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/user/${session?.user.user._id}`)
+            const messages = response.data
+            setMessages2(messages.messages)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
+        findAllMessage()
+    },[])
+
     useEffect(() => {
         socket.on('message', (message: any) => {
-            setMessages((prevMessages) => [...prevMessages, message])
+            setMessages2((prevMessages) => [...prevMessages, message])
+             findAllMessage()
+             scrollToBottom()
         })
 
         return () => {
             socket.off('message')
         }
     }, [socket])
+
+    const scrollToBottom = () => {
+        const messagesEnd = document.getElementById('messages-end');
+        if (messagesEnd) {
+          messagesEnd.scrollIntoView({ behavior: 'smooth' });
+        }
+      };
 
     const handleEmojiOpen = () => {
         setEmojiOpen(true)
@@ -77,13 +101,13 @@ export function ChatWindow({ data, fetchUsers, socket }: any) {
                 </Flex>
             </Flex>
 
-            <Box p={5} backgroundSize={'cover'} overflowY={'auto'} bg={'#E5DDD5'} flex={'1'}>
-                {messages.map((item: any, key: number) => {
-                    const isSentByCurrentUser = item.sender === data._id
-
+            <Box p={5} backgroundSize={'cover'} overflowY={'auto'} bg={'#E5DDD5'} flex={'1'}  id="messages-end">
+                {messages2?.map((item: any, key: number) => {
+                    const isSentByCurrentUser = item.sender === idSender
+    
                     return (
-                        <Flex key={key} justifyContent={isSentByCurrentUser ? 'flex-start' : 'flex-end'}>
-                            <MessageItem data={item} />
+                        <Flex key={key} justifyContent={isSentByCurrentUser ? 'flex-end' : 'flex-start'}>
+                            <MessageItem isSentByCurrentUser={isSentByCurrentUser} data={item} />
                         </Flex>
                     )
                 })}
