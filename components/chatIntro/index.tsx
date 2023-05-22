@@ -1,4 +1,4 @@
-import { Box, Image, Text, Flex, Container } from '@chakra-ui/react'
+import { Image, Container } from '@chakra-ui/react'
 
 export function ChatIntro() {
     return (

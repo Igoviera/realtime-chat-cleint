@@ -9,5 +9,6 @@ export interface User {
 }
 
 export interface Message {
-    message: string
+    message: string;
+    createdAt: Date
 }

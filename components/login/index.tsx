@@ -1,19 +1,15 @@
 import {
-    Tabs,
-    TabList,
-    Tab,
-    TabPanels,
-    TabPanel,
-    FormControl,
     VStack,
     FormLabel,
     Input,
     Button,
     Box,
-    Text
+    Text,
+    Container,
+    Flex
 } from '@chakra-ui/react'
 
-import {useState} from 'react'
+import { useState } from 'react'
 import { signIn, useSession } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -22,7 +18,6 @@ import { useRouter } from 'next/router'
 import { getServerSession } from 'next-auth'
 import { GetServerSideProps } from 'next'
 import { authOptions } from '../../pages/api/auth/[...nextauth]'
-
 
 const schema = yup
     .object({
@@ -33,7 +28,7 @@ const schema = yup
 type FormData = yup.InferType<typeof schema>
 
 export function Login() {
-    const [hasError, setHasError] = useState(false)
+    const [hasError, setHasError] = useState('')
 
     const router = useRouter()
 
@@ -45,31 +40,39 @@ export function Login() {
         resolver: yupResolver(schema)
     })
     const onSubmit = async (credentials: FormData) => {
-        const {cpf, password} = credentials
+        const { cpf, password } = credentials
         const request = await signIn('credentials', {
             redirect: false,
             cpf,
             password
         })
-        if(request && request.ok){
+        if (request && request.ok) {
             router.push('/')
-        }else {
-            setHasError(true)
+        } else {
+           setHasError('CPF ou senha invalida!')
         }
-    } 
+    }
 
     return (
         <VStack>
             <Box w={'100%'}>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <FormLabel>CPF</FormLabel>
+                    <Flex borderRadius={5} justifyContent={'center'} alignItems={'center'} bg={'red.100'}>
+                        <Text color={'red.500'}>{hasError}</Text>
+                    </Flex>
+                    
+                    <FormLabel mt={3}>CPF</FormLabel>
                     <Input {...register('cpf')} placeholder="Digite seu CPF" />
-                    <Text fontSize={'14px'} color={'red'}>{errors.cpf?.message}</Text>
+                    <Text fontSize={'14px'} color={'red'}>
+                        {errors.cpf?.message}
+                    </Text>
                     <FormLabel mt={'20px'}>Password</FormLabel>
-                    <Input type='password' {...register('password')} placeholder="Digite sua senha" />
-                    <Text mb={5} fontSize={'14px'} color={'red'}>{errors.password?.message}</Text>
+                    <Input type="password" {...register('password')} placeholder="Digite sua senha" />
+                    <Text mb={5} fontSize={'14px'} color={'red'}>
+                        {errors.password?.message}
+                    </Text>
                     <Button
-                        type='submit'
+                        type="submit"
                         color={'white'}
                         transition={'0.5s'}
                         _hover={{ bg: '#0a5c70' }}
@@ -83,7 +86,6 @@ export function Login() {
         </VStack>
     )
 }
-
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const session = await getServerSession(ctx.req, ctx.res, authOptions)

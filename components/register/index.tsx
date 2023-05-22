@@ -1,18 +1,9 @@
-import {
-    Button,
-    FormControl,
-    FormLabel,
-    Input,
-    InputGroup,
-    InputRightElement,
-    VStack,
-    Text,
-    Box
-} from '@chakra-ui/react'
-import { useState } from 'react'
+import { Button, FormLabel, Input, VStack, Text, Box, Flex } from '@chakra-ui/react'
 import { useForm } from 'react-hook-form'
+import { useState } from 'react'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
+import axios from 'axios'
 
 const schema = yup
     .object({
@@ -25,6 +16,8 @@ const schema = yup
 type FormData = yup.InferType<typeof schema>
 
 export function Register() {
+    const [alert, setAlert] = useState('')
+
     const {
         register,
         handleSubmit,
@@ -32,13 +25,23 @@ export function Register() {
     } = useForm<FormData>({
         resolver: yupResolver(schema)
     })
-    const onSubmit = (data: FormData) => console.log(data)
+    const onSubmit = async (data: FormData) => {
+        try {
+            await axios.post(`http://localhost:5000/cadastrar/user`, data)
+            setAlert('Cadastro realizado com sucesso, volte para o login')
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     return (
         <VStack spacing="5px">
             <Box w={'100%'}>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <FormLabel>Name</FormLabel>
+                    <Flex borderRadius={5} justifyContent={'center'} alignItems={'center'} bg={'green.100'}>
+                        <Text color={'green.500'}>{alert}</Text>
+                    </Flex>
+                    <FormLabel mt={5}>Name</FormLabel>
                     <Input {...register('name')} placeholder="Digite seu nome" />
                     <Text fontSize={'14px'} color={'red'}>
                         {errors.name?.message}
@@ -53,8 +56,8 @@ export function Register() {
                     <Text fontSize={'14px'} color={'red'}>
                         {errors.cpf?.message}
                     </Text>
-                    <FormLabel mt={'20px'}>Password</FormLabel>         
-                    <Input {...register('password')}  placeholder="Digite uma senha" />
+                    <FormLabel mt={'20px'}>Password</FormLabel>
+                    <Input {...register('password')} placeholder="Digite uma senha" />
                     <Text mb={5} fontSize={'14px'} color={'red'}>
                         {errors.password?.message}
                     </Text>

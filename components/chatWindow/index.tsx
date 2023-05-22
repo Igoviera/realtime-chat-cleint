@@ -1,15 +1,13 @@
-import { Box, Image, Text, Button, Flex, Input } from '@chakra-ui/react'
+import { Box, Image, Text, Flex, Input } from '@chakra-ui/react'
 import { BiSearch } from 'react-icons/bi'
-import { BsEmojiSmile, BsFillMicFill } from 'react-icons/bs'
-import { AiFillExclamationCircle, AiOutlineSend } from 'react-icons/ai'
+import { BsFillMicFill } from 'react-icons/bs'
+import { AiOutlineArrowLeft, AiOutlineSend } from 'react-icons/ai'
 import { MdMoreVert, MdOutlineEmojiEmotions } from 'react-icons/md'
 import { MdClose } from 'react-icons/md'
 import EmojiPicker from 'emoji-picker-react'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { MessageItem } from '../MessageItem'
-import { io } from 'socket.io-client'
 import { useSession } from 'next-auth/react'
-import socket from './Socket'
 import axios from 'axios'
 
 export function ChatWindow({ data, fetchUsers, socket }: any) {
@@ -41,13 +39,13 @@ export function ChatWindow({ data, fetchUsers, socket }: any) {
 
     useEffect(() => {
         findAllMessage()
-    },[])
+    }, [])
 
     useEffect(() => {
         socket.on('message', (message: any) => {
             setMessages2((prevMessages) => [...prevMessages, message])
-             findAllMessage()
-             scrollToBottom()
+            findAllMessage()
+            scrollToBottom()
         })
 
         return () => {
@@ -56,11 +54,11 @@ export function ChatWindow({ data, fetchUsers, socket }: any) {
     }, [socket])
 
     const scrollToBottom = () => {
-        const messagesEnd = document.getElementById('messages-end');
+        const messagesEnd = document.getElementById('messages-end')
         if (messagesEnd) {
-          messagesEnd.scrollIntoView({ behavior: 'smooth' });
+            messagesEnd.scrollIntoView({ behavior: 'smooth' })
         }
-      };
+    }
 
     const handleEmojiOpen = () => {
         setEmojiOpen(true)
@@ -83,16 +81,20 @@ export function ChatWindow({ data, fetchUsers, socket }: any) {
                 alignItems={'center'}
             >
                 <Flex alignItems={'center'}>
+                    <Box ml={'15px'} cursor={'pointer'}>
+                        <AiOutlineArrowLeft  size={'20px'} />
+                    </Box>
+
                     <Image
-                        ml={'15px'}
+                        ml={'3px'}
                         mr={'15px'}
                         w={'40px'}
                         h={'40px'}
                         borderRadius={'50%'}
-                        src={data.img}
+                        src={data?.img}
                     />
                     <Text fontSize={'17px'} color={'black'}>
-                        {data.name}
+                        {data?.name}
                     </Text>
                 </Flex>
                 <Flex gap={'15px'} alignItems={'center'} mr={'15px'}>
@@ -101,10 +103,17 @@ export function ChatWindow({ data, fetchUsers, socket }: any) {
                 </Flex>
             </Flex>
 
-            <Box p={5} backgroundSize={'cover'} overflowY={'auto'} bg={'#E5DDD5'} flex={'1'}  id="messages-end">
+            <Box
+                p={5}
+                backgroundSize={'cover'}
+                overflowY={'auto'}
+                bg={'#E5DDD5'}
+                flex={'1'}
+                id="messages-end"
+            >
                 {messages2?.map((item: any, key: number) => {
                     const isSentByCurrentUser = item.sender === idSender
-    
+
                     return (
                         <Flex key={key} justifyContent={isSentByCurrentUser ? 'flex-end' : 'flex-start'}>
                             <MessageItem isSentByCurrentUser={isSentByCurrentUser} data={item} />
