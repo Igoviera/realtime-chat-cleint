@@ -8,14 +8,14 @@ export const authOptions: NextAuthOptions = {
         jwt: async ({ token, user }) => {
             if (user) {
                 token.user = user
-                token.accessToken = user
+                token.token = user.token
             }
             return Promise.resolve(token)
         },
         session: async ({ token, session }) => {
             if (token) {
-                session.accessToken = token.accessToken as string
-                session.user = token.accessToken
+                session.token = token.token as string
+                session.user = token.user
             }
             return Promise.resolve(session)
         }
@@ -35,7 +35,6 @@ export const authOptions: NextAuthOptions = {
                         }).then(async (data) => {
                             return await data.json()
                         })
-
                         if (user.token) {
                             return user
                         } else {

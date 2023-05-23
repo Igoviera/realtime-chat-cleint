@@ -1,4 +1,4 @@
-import { Box, Image, Text, Flex, Input } from '@chakra-ui/react'
+import { Box, Image, Text, Flex, Input, Menu, MenuButton, MenuList, MenuItem, Button } from '@chakra-ui/react'
 import { BiSearch } from 'react-icons/bi'
 import { BsFillMicFill } from 'react-icons/bs'
 import { AiOutlineArrowLeft, AiOutlineSend } from 'react-icons/ai'
@@ -10,7 +10,7 @@ import { MessageItem } from '../MessageItem'
 import { useSession } from 'next-auth/react'
 import axios from 'axios'
 
-export function ChatWindow({ data, fetchUsers, socket }: any) {
+export function ChatWindow({ data, setIsChatList, fetchUsers, socket, setActiveChat }: any) {
     const [emojiOpen, setEmojiOpen] = useState(false)
     const [text, setText] = useState('')
     const [messages2, setMessages2] = useState<any[]>([])
@@ -53,6 +53,16 @@ export function ChatWindow({ data, fetchUsers, socket }: any) {
         }
     }, [socket])
 
+    const deleteMessages = async () => {
+        try {
+           await axios.delete(`http://localhost:5000/user/messages/${session?.user.user._id}`)
+           findAllMessage() 
+        } catch (error) {
+            console.log(error)
+        }
+        
+    }
+
     const scrollToBottom = () => {
         const messagesEnd = document.getElementById('messages-end')
         if (messagesEnd) {
@@ -73,7 +83,7 @@ export function ChatWindow({ data, fetchUsers, socket }: any) {
     const handleMicClick = () => {}
 
     return (
-        <Flex w={'100%'} flexDirection={'column'} h={'100vh'}>
+        <Flex w={'100vw'} bg={'#F0F2F5'} flexDirection={'column'} h={'100vh'}>
             <Flex
                 borderBottom={'1px solid #ccc'}
                 h={'60px'}
@@ -81,10 +91,16 @@ export function ChatWindow({ data, fetchUsers, socket }: any) {
                 alignItems={'center'}
             >
                 <Flex alignItems={'center'}>
-                    <Box ml={'15px'} cursor={'pointer'}>
-                        <AiOutlineArrowLeft  size={'20px'} />
+                    <Box
+                        onClick={() => {
+                            setIsChatList(true)
+                            setActiveChat(undefined)
+                        }}
+                        ml={'15px'}
+                        cursor={'pointer'}
+                    >
+                        <AiOutlineArrowLeft size={'20px'} />
                     </Box>
-
                     <Image
                         ml={'3px'}
                         mr={'15px'}
@@ -99,12 +115,20 @@ export function ChatWindow({ data, fetchUsers, socket }: any) {
                 </Flex>
                 <Flex gap={'15px'} alignItems={'center'} mr={'15px'}>
                     <BiSearch size={25} cursor={'pointer'} />
-                    <MdMoreVert size={25} cursor={'pointer'} />
+                    <Menu>
+                        <MenuButton as={Button}>
+                            <MdMoreVert size={25} cursor={'pointer'} />
+                        </MenuButton>
+                        <MenuList _hover={{bg:'#F0F2F5'}}>
+                            <MenuItem onClick={deleteMessages}>Limpar mensagens</MenuItem>
+                        </MenuList>
+                    </Menu>
+                    
                 </Flex>
             </Flex>
 
             <Box
-                p={5}
+                p={3}
                 backgroundSize={'cover'}
                 overflowY={'auto'}
                 bg={'#E5DDD5'}
@@ -116,7 +140,9 @@ export function ChatWindow({ data, fetchUsers, socket }: any) {
 
                     return (
                         <Flex key={key} justifyContent={isSentByCurrentUser ? 'flex-end' : 'flex-start'}>
-                            <MessageItem isSentByCurrentUser={isSentByCurrentUser} data={item} />
+                            <Flex>
+                                <MessageItem isSentByCurrentUser={isSentByCurrentUser} data={item} />
+                            </Flex>
                         </Flex>
                     )
                 })}

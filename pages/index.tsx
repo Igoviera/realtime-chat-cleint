@@ -26,102 +26,128 @@ import { useContext } from 'react'
 import { getSession, signOut, useSession } from 'next-auth/react'
 import { io } from 'socket.io-client'
 import { User } from '../types/user'
+import Head from 'next/head'
 
 const Home: NextPage = () => {
     const { data: session } = useSession()
     const { chatList }: any = useContext(Context)
     const [activeChat, setActiveChat] = useState<User | undefined>(undefined)
     const [socket] = useState(() => io('http://localhost:5000'))
+    const [isChatList, setIsChatList] = useState(true)
 
-    const [active, setActive] = useState(false)
+    const userList = chatList.filter((item: any) => item._id !== session?.user.user._id)
 
-    const activeC = () => {
-        setActive(true)
+    const handleChatItemClick = (item: User) => {
+        setActiveChat(item)
+        setIsChatList(false)
     }
 
     return (
-        <Box bg={'#ededed'} display={'flex'} h={'100vh'}>
-            {/* <Box
-                w={{ md: '35%', base: '100%' }}
-                maxW={{ md: '415px', base: 'none' }}
-                display={{ md: 'flex' }}
-                flexDirection={'column'}
-                borderRight={'1px solid #DDD'}
-            >
-                <Box
-                    pl={'15px'}
-                    pr={'15px'}
-                    h={'60px'}
-                    display={'flex'}
-                    justifyContent={'space-between'}
-                    alignItems={'center'}
-                >
-                    <HStack>
-                        <Image
-                            w={'40px'}
-                            h={'40px'}
-                            borderRadius={'50%'}
-                            cursor={'pointer'}
-                            src="https://www.w3schools.com/howto/img_avatar2.png"
-                        />
-                        <Text>Olá, {session?.user.user.name}</Text>
-                    </HStack>
+        <>
+            <Head>
+                <title>Chat</title>
+            </Head>
+            <Box bg={'blue.700'} display={'flex'} h={'100vh'}>
+                {isChatList && (
+                    <Box
+                        bg={'white'}
+                        w={{ md: '35%', base: '100%' }}
+                        maxW={{ md: '415px', base: 'none' }}
+                        display={{ md: 'flex' }}
+                        flexDirection={'column'}
+                        borderRight={'1px solid #DDD'}
+                    >
+                        <Box
+                            bg={'#F0F2F5'}
+                            pl={'15px'}
+                            pr={'15px'}
+                            h={'60px'}
+                            display={'flex'}
+                            justifyContent={'space-between'}
+                            alignItems={'center'}
+                        >
+                            <HStack>
+                                <Image
+                                    w={'40px'}
+                                    h={'40px'}
+                                    borderRadius={'50%'}
+                                    cursor={'pointer'}
+                                    src="https://www.w3schools.com/howto/img_avatar2.png"
+                                />
+                                <Text>Olá, {session?.user.user.name}</Text>
+                            </HStack>
 
-                    <Flex alignItems={'center'}>
-                        <BsChatLeftTextFill color={'#919191'} size={20} cursor={'pointer'} />
-                        <Menu>
-                            <MenuButton
-                                as={Button}
-                                rightIcon={<MdMoreVert color={'#919191'} size={25} cursor={'pointer'} />}
-                            ></MenuButton>
-                            <MenuList borderRadius={'3px'}>
-                                <MenuItem _hover={{ bg: '#ccc' }} onClick={() => signOut()}>
-                                    Desconectar
-                                </MenuItem>
-                            </MenuList>
-                        </Menu>
-                    </Flex>
-                </Box>
+                            <Flex alignItems={'center'}>
+                                <BsChatLeftTextFill color={'#54656F'} size={20} cursor={'pointer'} />
+                                <Menu>
+                                    <MenuButton
+                                        as={Button}
+                                        rightIcon={
+                                            <MdMoreVert color={'#54656F'} size={25} cursor={'pointer'} />
+                                        }
+                                    ></MenuButton>
+                                    <MenuList borderRadius={'3px'}>
+                                        <MenuItem _hover={{ bg: '#F0F2F5' }} onClick={() => signOut()}>
+                                            Desconectar
+                                        </MenuItem>
+                                    </MenuList>
+                                </Menu>
+                            </Flex>
+                        </Box>
+                        <Box>
+                            <InputGroup w={'90%'} mt={2} ml={5}>
+                                <InputLeftElement pointerEvents="none">
+                                    <BiSearch size={20} color="#54656F" />
+                                </InputLeftElement>
+                                <Input
+                                    type="search"
+                                    borderRadius={10}
+                                    borderBottom={'1px solid #EEE'}
+                                    bg={'#F0F2F5'}
+                                    placeholder="Pesquisar ou começar uma nova conversa"
+                                />
+                            </InputGroup>
+                        </Box>
+                        <Box
+                            bg={'white'}
+                            overflowY={'auto'}
+                            css={{
+                                '&::-webkit-scrollbar': {
+                                    width: '4px'
+                                },
+                                '&::-webkit-scrollbar-track': {
+                                    width: '6px'
+                                },
+                                '&::-webkit-scrollbar-thumb': {
+                                    background: '#006611',
+                                    borderRadius: '24px'
+                                }
+                            }}
+                        >
+                            {userList.map((item: User, key: number) => (
+                                <ChatList key={key} onClick={() => handleChatItemClick(item)} data={item} />
+                            ))}
+                        </Box>
+                    </Box>
+                )}
                 <Box>
-                    <InputGroup w={'90%'} mt={2} ml={5}>
-                        <InputLeftElement pointerEvents="none">
-                            <BiSearch color="#919191" />
-                        </InputLeftElement>
-                        <Input
-                            type="search"
-                            borderRadius={10}
-                            borderBottom={'1px solid #EEE'}
-                            bg={'#F6F6F6'}
-                            placeholder="Pesquisar ou começar uma nova conversa"
-                        />
-                    </InputGroup>
+                    {activeChat?._id !== undefined && (
+         
+                            <ChatWindow
+                                setIsChatList={setIsChatList}
+                                setActiveChat={setActiveChat}
+                                socket={socket}
+                                data={activeChat}
+                            />
+                       
+                    )}
                 </Box>
-                <Box
-                    overflowY={'auto'}
-                    css={{
-                        '&::-webkit-scrollbar': {
-                            width: '4px'
-                        },
-                        '&::-webkit-scrollbar-track': {
-                            width: '6px'
-                        },
-                        '&::-webkit-scrollbar-thumb': {
-                            background: '#006611',
-                            borderRadius: '24px'
-                        }
-                    }}
-                >
-                    {chatList.map((item: User, key: number) => (
-                        <ChatList key={key} onClick={() => setActiveChat(chatList[key])} data={item} />
-                    ))}
+
+                <Box w={'100%'} display={{ base: 'none', md: 'flex' }}>
+                    {activeChat?._id === undefined && <ChatIntro />}
                 </Box>
-            </Box> */}
-            <ChatWindow socket={socket} data={activeChat} />
-            <Box w={'100%'} display={{ base: 'none', md: 'flex' }}>
-                {activeChat?._id !== undefined && <ChatWindow socket={socket} data={activeChat} />}
-                {activeChat?._id === undefined && <ChatIntro />}
             </Box>
-        </Box>
+        </>
     )
 }
 
@@ -138,6 +164,7 @@ export async function getServerSideProps(context: any) {
             }
         }
     }
+    console.log('🚀 ~ file: index.tsx:167 ~ getServerSideProps ~ session.user:', session.user)
 
     return {
         props: {

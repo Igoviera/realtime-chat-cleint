@@ -5,7 +5,7 @@ import { AuthUser } from './AuthUser'
 declare module 'next-auth' {
     interface Session {
         user: AuthUser
-        accessToken: string
+        token: string
     }
 
     interface User {
@@ -14,7 +14,7 @@ declare module 'next-auth' {
         email?: string | null
         cpf?: string | null
         image?: string | null
-        accessToken?: string | null
+        token?: string | null
         role?: string | null
     }
 }

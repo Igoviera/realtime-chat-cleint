@@ -8,7 +8,7 @@ interface MessageItemProps {
 
 export function MessageItem({ data, isSentByCurrentUser }: MessageItemProps) {
     const date = new Date(data.createdAt)
-  
+
     // const options = {}
     // const dateHoras = date.toLocaleTimeString('pt-br', { hour: '2-digit', minute: '2-digit' })
 
@@ -29,6 +29,7 @@ export function MessageItem({ data, isSentByCurrentUser }: MessageItemProps) {
                 <Text fontSize={'11px'} color={'#999'} mr={'5px'} mt={'-15px'} h={'15px'} textAlign={'right'}>
                     {date.toLocaleTimeString('pt-br', { hour: '2-digit', minute: '2-digit' })}
                 </Text>
+                
             </Box>
         </Flex>
     )

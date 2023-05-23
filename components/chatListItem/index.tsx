@@ -45,9 +45,7 @@ export function ChatList({ data, onClick }: any) {
                         fontSize={'14px'}
                         color={'#999'}
                     >
-                        Opa!kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                        kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                        kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+                        Opa!kkkkkkkkk
                     </Text>
                 </Flex>
             </Box>
