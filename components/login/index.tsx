@@ -1,13 +1,4 @@
-import {
-    VStack,
-    FormLabel,
-    Input,
-    Button,
-    Box,
-    Text,
-    Container,
-    Flex
-} from '@chakra-ui/react'
+import { VStack, FormLabel, Input, Button, Box, Text, Container, Flex } from '@chakra-ui/react'
 
 import { useState } from 'react'
 import { signIn, useSession } from 'next-auth/react'
@@ -27,9 +18,8 @@ const schema = yup
     .required()
 type FormData = yup.InferType<typeof schema>
 
-export function Login() {
+export function Login({setLoading}: {setLoading: React.Dispatch<React.SetStateAction<boolean>>}) {
     const [hasError, setHasError] = useState('')
-
     const router = useRouter()
 
     const {
@@ -40,17 +30,25 @@ export function Login() {
         resolver: yupResolver(schema)
     })
     const onSubmit = async (credentials: FormData) => {
+        setLoading(true)
         const { cpf, password } = credentials
-        const request = await signIn('credentials', {
-            redirect: false,
-            cpf,
-            password
-        })
-        if (request && request.ok) {
-            router.push('/')
-        } else {
-           setHasError('CPF ou senha invalida!')
-        }
+        try {
+            const request = await signIn('credentials', {
+                redirect: false,
+                cpf,
+                password
+            })
+
+            setLoading(false)
+
+            if (request && request.ok) {
+                router.push('/')
+            } else {
+                setHasError('CPF ou senha invalida!')
+            }
+        } catch (error) {
+            setHasError('Ocorreu um erro ao processar o login.')
+        } 
     }
 
     return (
@@ -60,7 +58,7 @@ export function Login() {
                     <Flex borderRadius={5} justifyContent={'center'} alignItems={'center'} bg={'red.100'}>
                         <Text color={'red.500'}>{hasError}</Text>
                     </Flex>
-                    
+
                     <FormLabel mt={3}>CPF</FormLabel>
                     <Input {...register('cpf')} placeholder="Digite seu CPF" />
                     <Text fontSize={'14px'} color={'red'}>

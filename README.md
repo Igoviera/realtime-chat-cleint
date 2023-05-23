@@ -1,5 +1,6 @@
 ## Tecnologias utilizadas
  - Next.js
+ - Typscrypt
  - Chakra-ui
  - axios
  - NextAuth.js

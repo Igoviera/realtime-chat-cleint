@@ -15,7 +15,7 @@ const schema = yup
     .required()
 type FormData = yup.InferType<typeof schema>
 
-export function Register() {
+export function Register({setLoading}: {setLoading: React.Dispatch<React.SetStateAction<boolean>>}) {
     const [alert, setAlert] = useState('')
 
     const {

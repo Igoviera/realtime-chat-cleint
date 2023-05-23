@@ -4,31 +4,39 @@ import { Register } from '../components/register'
 import { Login } from '../components/login'
 import { getSession, useSession } from 'next-auth/react'
 import Head from 'next/head'
+import { Loading } from '../components/Loading'
+import { useState } from 'react'
 
 export default function () {
+    const [loanding, setLoading] = useState(false)
+
     return (
         <>
-        <Head>
-            <title>Chat-Login</title>
-        </Head>
-            <Box display={'flex'} justifyContent={'center'} alignItems={'center'} h={'100vh'}>
-                <Container bg={'white'} borderRadius={10}>
-                    <Tabs size="md" variant="line">
-                        <TabList mt={'1em'}>
-                            <Tab w={'50%'}>Login</Tab>
-                            <Tab w={'50%'}>Registre-se</Tab>
-                        </TabList>
-                        <TabPanels>
-                            <TabPanel>
-                                <Login />
-                            </TabPanel>
-                            <TabPanel>
-                                <Register />
-                            </TabPanel>
-                        </TabPanels>
-                    </Tabs>
-                </Container>
-            </Box>
+            <Head>
+                <title>Chat-Login</title>
+            </Head>
+            {loanding ? (
+                <Loading />
+            ) : (
+                <Box display={'flex'} justifyContent={'center'} alignItems={'center'} h={'100vh'}>
+                    <Container bg={'white'} borderRadius={10}>
+                        <Tabs size="md" variant="line">
+                            <TabList mt={'1em'}>
+                                <Tab w={'50%'}>Login</Tab>
+                                <Tab w={'50%'}>Registre-se</Tab>
+                            </TabList>
+                            <TabPanels>
+                                <TabPanel>
+                                    <Login setLoading={setLoading} />
+                                </TabPanel>
+                                <TabPanel>
+                                    <Register setLoading={setLoading} />
+                                </TabPanel>
+                            </TabPanels>
+                        </Tabs>
+                    </Container>
+                </Box>
+            )}
         </>
     )
 }
