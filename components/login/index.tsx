@@ -1,7 +1,7 @@
-import { VStack, FormLabel, Input, Button, Box, Text, Container, Flex } from '@chakra-ui/react'
+import { VStack, FormLabel, Input, Button, Box, Text, Flex } from '@chakra-ui/react'
 
 import { useState } from 'react'
-import { signIn, useSession } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
@@ -18,7 +18,7 @@ const schema = yup
     .required()
 type FormData = yup.InferType<typeof schema>
 
-export function Login({setLoading}: {setLoading: React.Dispatch<React.SetStateAction<boolean>>}) {
+export function Login({ setLoading }: { setLoading: React.Dispatch<React.SetStateAction<boolean>> }) {
     const [hasError, setHasError] = useState('')
     const router = useRouter()
 
@@ -29,9 +29,10 @@ export function Login({setLoading}: {setLoading: React.Dispatch<React.SetStateAc
     } = useForm<FormData>({
         resolver: yupResolver(schema)
     })
+
     const onSubmit = async (credentials: FormData) => {
-        setLoading(true)
         const { cpf, password } = credentials
+
         try {
             const request = await signIn('credentials', {
                 redirect: false,
@@ -39,16 +40,14 @@ export function Login({setLoading}: {setLoading: React.Dispatch<React.SetStateAc
                 password
             })
 
-            setLoading(false)
-
             if (request && request.ok) {
                 router.push('/')
             } else {
                 setHasError('CPF ou senha invalida!')
             }
         } catch (error) {
-            setHasError('Ocorreu um erro ao processar o login.')
-        } 
+            setHasError('Error')
+        }
     }
 
     return (
@@ -60,12 +59,17 @@ export function Login({setLoading}: {setLoading: React.Dispatch<React.SetStateAc
                     </Flex>
 
                     <FormLabel mt={3}>CPF</FormLabel>
-                    <Input {...register('cpf')} placeholder="Digite seu CPF" />
+                    <Input maxLength={14} {...register('cpf')} placeholder="Digite seu CPF" />
                     <Text fontSize={'14px'} color={'red'}>
                         {errors.cpf?.message}
                     </Text>
                     <FormLabel mt={'20px'}>Password</FormLabel>
-                    <Input type="password" {...register('password')} placeholder="Digite sua senha" />
+                    <Input
+                        maxLength={55}
+                        type="password"
+                        {...register('password')}
+                        placeholder="Digite sua senha"
+                    />
                     <Text mb={5} fontSize={'14px'} color={'red'}>
                         {errors.password?.message}
                     </Text>
@@ -73,8 +77,8 @@ export function Login({setLoading}: {setLoading: React.Dispatch<React.SetStateAc
                         type="submit"
                         color={'white'}
                         transition={'0.5s'}
-                        _hover={{ bg: '#0a5c70' }}
-                        bg={'#169ec0'}
+                        _hover={{ bg: '#178d89' }}
+                        bg={'#59C2BE'}
                         w={'100%'}
                     >
                         Entrar

@@ -15,7 +15,7 @@ const schema = yup
     .required()
 type FormData = yup.InferType<typeof schema>
 
-export function Register({setLoading}: {setLoading: React.Dispatch<React.SetStateAction<boolean>>}) {
+export function Register({ setLoading }: { setLoading: React.Dispatch<React.SetStateAction<boolean>> }) {
     const [alert, setAlert] = useState('')
 
     const {
@@ -39,25 +39,32 @@ export function Register({setLoading}: {setLoading: React.Dispatch<React.SetStat
             <Box w={'100%'}>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Flex borderRadius={5} justifyContent={'center'} alignItems={'center'} bg={'green.100'}>
-                        <Text color={'green.500'}>{alert}</Text>
+                        <Text textAlign={'center'} color={'green.500'}>
+                            {alert}
+                        </Text>
                     </Flex>
                     <FormLabel mt={5}>Name</FormLabel>
-                    <Input {...register('name')} placeholder="Digite seu nome" />
+                    <Input maxLength={55} {...register('name')} placeholder="Digite seu nome" />
                     <Text fontSize={'14px'} color={'red'}>
                         {errors.name?.message}
                     </Text>
                     <FormLabel mt={'20px'}>Email Address</FormLabel>
-                    <Input {...register('email')} type="email" placeholder="Digite um e-mail" />
+                    <Input
+                        maxLength={55}
+                        {...register('email')}
+                        type="email"
+                        placeholder="Digite um e-mail"
+                    />
                     <Text fontSize={'14px'} color={'red'}>
                         {errors.email?.message}
                     </Text>
                     <FormLabel mt={'20px'}>CPF</FormLabel>
-                    <Input {...register('cpf')} placeholder="Digite seu CPF" />
+                    <Input maxLength={14} {...register('cpf')} placeholder="Digite seu CPF" />
                     <Text fontSize={'14px'} color={'red'}>
                         {errors.cpf?.message}
                     </Text>
                     <FormLabel mt={'20px'}>Password</FormLabel>
-                    <Input {...register('password')} placeholder="Digite uma senha" />
+                    <Input maxLength={55} {...register('password')} placeholder="Digite uma senha" />
                     <Text mb={5} fontSize={'14px'} color={'red'}>
                         {errors.password?.message}
                     </Text>
@@ -65,8 +72,8 @@ export function Register({setLoading}: {setLoading: React.Dispatch<React.SetStat
                         type="submit"
                         color={'white'}
                         transition={'0.5s'}
-                        _hover={{ bg: '#0a5c70' }}
-                        bg={'#169ec0'}
+                        _hover={{ bg: '#178d89' }}
+                        bg={'#59C2BE'}
                         w={'100%'}
                     >
                         Cadastrar

@@ -7,6 +7,7 @@ interface MessageItemProps {
 }
 
 export function MessageItem({ data, isSentByCurrentUser }: MessageItemProps) {
+
     const date = new Date(data.createdAt)
 
     // const options = {}
@@ -22,6 +23,7 @@ export function MessageItem({ data, isSentByCurrentUser }: MessageItemProps) {
                 boxShadow={'0 1px 1px #ccc'}
                 bg={isSentByCurrentUser ? '#cbf5be' : 'white'}
                 borderRadius={'10px'}
+    
             >
                 <Text display={'flex'}  fontSize={'14px'} mt={'5px'} mr={'40px'} mb={'5px'} ml={'5px'}>
                     {data.message}

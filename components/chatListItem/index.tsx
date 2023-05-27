@@ -1,8 +1,6 @@
-import { Box, Text, Image, Flex, Avatar, AvatarBadge } from '@chakra-ui/react'
-import { User } from '../../types/user'
+import { Box, Text, Flex, Avatar, AvatarBadge } from '@chakra-ui/react'
 
-export function ChatList({ data, onClick }: any) {
-  
+export function ChatList({ user, onClick }: any) {
     return (
         <Flex
             onClick={onClick}
@@ -12,9 +10,10 @@ export function ChatList({ data, onClick }: any) {
             alignItems={'center'}
             h={'70px'}
         >
-            <Avatar ml={'15px'} src={data.img}>
-                <AvatarBadge  boxSize='0.9em' bg='green.500'/>
-            </Avatar>    
+            <Avatar ml={'15px'} src={user.img}>
+                <AvatarBadge boxSize="0.9em" bg="green.500" />
+            </Avatar>
+
             {/* <Image ml={'15px'} w={'50px'} h={'50px'} borderRadius={'50%'} src={data.img} /> */}
             <Box
                 flex={'1'}
@@ -30,7 +29,7 @@ export function ChatList({ data, onClick }: any) {
             >
                 <Flex justifyContent={'space-between'} alignItems={'center'} w={'full'}>
                     <Text color={'black'} fontSize={'17px'}>
-                        {data.name}
+                        {user.name}
                     </Text>
                     <Text fontSize={'12px'} color={'#999'}>
                         19:00

@@ -5,22 +5,32 @@ import { AiOutlineArrowLeft, AiOutlineSend } from 'react-icons/ai'
 import { MdMoreVert, MdOutlineEmojiEmotions } from 'react-icons/md'
 import { MdClose } from 'react-icons/md'
 import EmojiPicker from 'emoji-picker-react'
-import { useEffect, useState } from 'react'
+import { ReactEventHandler, useEffect, useState } from 'react'
 import { MessageItem } from '../MessageItem'
 import { useSession } from 'next-auth/react'
-import axios from 'axios'
+import { api } from '../../services/api'
 
-export function ChatWindow({ data, setIsChatList, fetchUsers, socket, setActiveChat }: any) {
+export function ChatWindow({ activeChat, setIsChatList, setActiveChat, socket }: any) {
+    const { data: session } = useSession()
     const [emojiOpen, setEmojiOpen] = useState(false)
     const [text, setText] = useState('')
     const [messages2, setMessages2] = useState<any[]>([])
-    const { data: session } = useSession()
+
     const idSender = session?.user.user._id
 
-    const enviarMessage = () => {
+    // const username: string = session?.user.user.name
+    // socket.emit('username', username)
+
+    const handleKeyDown = (e: any) => {
+        if(e.key === 'Enter'){
+            enviarMessage()
+        }
+    }
+
+    const enviarMessage = async () => {
         const message = {
             sender: idSender,
-            recipient: data._id,
+            recipient: activeChat._id,
             message: text
         }
         socket.emit('message', message)
@@ -29,9 +39,15 @@ export function ChatWindow({ data, setIsChatList, fetchUsers, socket, setActiveC
 
     const findAllMessage = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/user/${session?.user.user._id}`)
+            const response = await api.get(`user/${session?.user.user._id}`, {
+                headers: {
+                    Authorization: `Bearer ${session?.token}`
+                }
+            })
             const messages = response.data
-            setMessages2(messages.messages)
+            if (messages) {
+                setMessages2(messages.messages)
+            }
         } catch (error) {
             console.log(error)
         }
@@ -48,38 +64,30 @@ export function ChatWindow({ data, setIsChatList, fetchUsers, socket, setActiveC
             scrollToBottom()
         })
 
-        return () => {
-            socket.off('message')
-        }
-    }, [socket])
+        return () => socket.off('message')
+    }, [])
 
     const deleteMessages = async () => {
         try {
-           await axios.delete(`http://localhost:5000/user/messages/${session?.user.user._id}`)
-           findAllMessage() 
+            await api.delete(`user/messages/${session?.user.user._id}`, {
+                headers: { Authorization: `Bearer ${session?.token}` }
+            })
+            findAllMessage()
         } catch (error) {
             console.log(error)
         }
-        
     }
 
     const scrollToBottom = () => {
         const messagesEnd = document.getElementById('messages-end')
+
         if (messagesEnd) {
             messagesEnd.scrollIntoView({ behavior: 'smooth' })
         }
     }
 
-    const handleEmojiOpen = () => {
-        setEmojiOpen(true)
-    }
-
-    const handleCloseEmoji = () => {
-        setEmojiOpen(false)
-    }
-
-    const handleSendClick = () => {}
-
+    const handleEmojiOpen = () => setEmojiOpen(true)
+    const handleCloseEmoji = () => setEmojiOpen(false)
     const handleMicClick = () => {}
 
     return (
@@ -107,10 +115,10 @@ export function ChatWindow({ data, setIsChatList, fetchUsers, socket, setActiveC
                         w={'40px'}
                         h={'40px'}
                         borderRadius={'50%'}
-                        src={data?.img}
+                        src={activeChat?.img}
                     />
                     <Text fontSize={'17px'} color={'black'}>
-                        {data?.name}
+                        {activeChat?.name}
                     </Text>
                 </Flex>
                 <Flex gap={'15px'} alignItems={'center'} mr={'15px'}>
@@ -119,11 +127,10 @@ export function ChatWindow({ data, setIsChatList, fetchUsers, socket, setActiveC
                         <MenuButton as={Button}>
                             <MdMoreVert size={25} cursor={'pointer'} />
                         </MenuButton>
-                        <MenuList _hover={{bg:'#F0F2F5'}}>
+                        <MenuList _hover={{ bg: '#F0F2F5' }}>
                             <MenuItem onClick={deleteMessages}>Limpar mensagens</MenuItem>
                         </MenuList>
                     </Menu>
-                    
                 </Flex>
             </Flex>
 
@@ -190,6 +197,7 @@ export function ChatWindow({ data, setIsChatList, fetchUsers, socket, setActiveC
                         type="text"
                         value={text}
                         onChange={(e) => setText(e.target.value)}
+                        onKeyDown={handleKeyDown}
                     />
                 </Box>
                 <Flex gap={5} ml={'15px'} mr={'15px'} alignItems={'center'}>

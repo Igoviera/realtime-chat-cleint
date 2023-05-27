@@ -1,4 +1,4 @@
-import type { GetServerSideProps, NextPage } from 'next'
+import type { NextPage } from 'next'
 import {
     Box,
     Text,
@@ -17,7 +17,7 @@ import {
 import { BsChatLeftTextFill } from 'react-icons/bs'
 import { MdMoreVert } from 'react-icons/md'
 import { BiSearch } from 'react-icons/bi'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChatList } from '../components/chatListItem'
 import { ChatIntro } from '../components/chatIntro'
 import { ChatWindow } from '../components/chatWindow'
@@ -31,15 +31,29 @@ import Head from 'next/head'
 const Home: NextPage = () => {
     const { data: session } = useSession()
     const { chatList }: any = useContext(Context)
+    const [socket, setSocket] = useState<any>(null)
     const [activeChat, setActiveChat] = useState<User | undefined>(undefined)
-    const [socket] = useState(() => io('http://localhost:5000'))
     const [isChatList, setIsChatList] = useState(true)
 
-    const userList = chatList.filter((item: any) => item._id !== session?.user.user._id)
+    const userList = chatList?.filter((item: any) => item._id !== session?.user.user._id)
 
     const handleChatItemClick = (item: User) => {
         setActiveChat(item)
         setIsChatList(false)
+    }
+
+    useEffect(() => {
+        const newSocket = io('http://localhost:5000')
+        setSocket(newSocket)
+
+        return () => {
+            newSocket.disconnect()
+        }
+    }, [])
+
+    if (!socket) {
+        // Pode renderizar um indicador de carregamento ou retornar null
+        return null
     }
 
     return (
@@ -90,6 +104,9 @@ const Home: NextPage = () => {
                                         <MenuItem _hover={{ bg: '#F0F2F5' }} onClick={() => signOut()}>
                                             Desconectar
                                         </MenuItem>
+                                        <MenuItem _hover={{ bg: '#F0F2F5' }} onClick={() => signOut()}>
+                                            Excluir conta
+                                        </MenuItem>
                                     </MenuList>
                                 </Menu>
                             </Flex>
@@ -125,21 +142,19 @@ const Home: NextPage = () => {
                             }}
                         >
                             {userList.map((item: User, key: number) => (
-                                <ChatList key={key} onClick={() => handleChatItemClick(item)} data={item} />
+                                <ChatList key={key} onClick={() => handleChatItemClick(item)} user={item} />
                             ))}
                         </Box>
                     </Box>
                 )}
                 <Box>
                     {activeChat?._id !== undefined && (
-         
-                            <ChatWindow
-                                setIsChatList={setIsChatList}
-                                setActiveChat={setActiveChat}
-                                socket={socket}
-                                data={activeChat}
-                            />
-                       
+                        <ChatWindow
+                            setIsChatList={setIsChatList}
+                            setActiveChat={setActiveChat}
+                            socket={socket}
+                            activeChat={activeChat}
+                        />
                     )}
                 </Box>
 
@@ -164,7 +179,6 @@ export async function getServerSideProps(context: any) {
             }
         }
     }
-    console.log('🚀 ~ file: index.tsx:167 ~ getServerSideProps ~ session.user:', session.user)
 
     return {
         props: {

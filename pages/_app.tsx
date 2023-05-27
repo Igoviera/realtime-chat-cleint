@@ -5,14 +5,15 @@ import { ContextProvider } from '../context/context'
 import { SessionProvider } from 'next-auth/react'
 
 function MyApp({ Component, pageProps }: AppProps) {
+    
     return (
-        <ChakraProvider>
-            <SessionProvider>
+        <SessionProvider session={pageProps.session} refetchInterval={60 * 5}>
+            <ChakraProvider>
                 <ContextProvider>
                     <Component {...pageProps} />
                 </ContextProvider>
-            </SessionProvider>
-        </ChakraProvider>
+            </ChakraProvider>
+        </SessionProvider>
     )
 }
 
