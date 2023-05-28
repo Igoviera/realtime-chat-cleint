@@ -1,9 +1,10 @@
 import { Button, FormLabel, Input, VStack, Text, Box, Flex } from '@chakra-ui/react'
 import { useForm } from 'react-hook-form'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import axios from 'axios'
+import { Context } from '../../context/context'
 
 const schema = yup
     .object({
@@ -15,7 +16,8 @@ const schema = yup
     .required()
 type FormData = yup.InferType<typeof schema>
 
-export function Register({ setLoading }: { setLoading: React.Dispatch<React.SetStateAction<boolean>> }) {
+export function Register() {
+    const { setLoading }: any = useContext(Context)
     const [alert, setAlert] = useState('')
 
     const {
@@ -27,10 +29,14 @@ export function Register({ setLoading }: { setLoading: React.Dispatch<React.SetS
     })
     const onSubmit = async (data: FormData) => {
         try {
-            await axios.post(`http://localhost:5000/cadastrar/user`, data)
-            setAlert('Cadastro realizado com sucesso, volte para o login')
-        } catch (error) {
-            console.log(error)
+            const response = await axios.post(`http://localhost:5000/cadastrar/user`, data)
+            if (response) {
+                setAlert('')
+                setAlert(`${response.data.message}, volte para o login`)
+            }
+        } catch (error: any) {
+            setAlert(error.response.data.message)
+            console.log(error.response.data.message)
         }
     }
 
@@ -38,11 +44,20 @@ export function Register({ setLoading }: { setLoading: React.Dispatch<React.SetS
         <VStack spacing="5px">
             <Box w={'100%'}>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <Flex borderRadius={5} justifyContent={'center'} alignItems={'center'} bg={'green.100'}>
-                        <Text textAlign={'center'} color={'green.500'}>
-                            {alert}
-                        </Text>
-                    </Flex>
+                    {alert && (
+                        <Flex
+                            borderRadius={5}
+                            p={'9px'}
+                            justifyContent={'center'}
+                            alignItems={'center'}
+                            bg={'green.100'}
+                        >
+                            <Text textAlign={'center'} color={'green.500'}>
+                                {alert}
+                            </Text>
+                        </Flex>
+                    )}
+
                     <FormLabel mt={5}>Name</FormLabel>
                     <Input maxLength={55} {...register('name')} placeholder="Digite seu nome" />
                     <Text fontSize={'14px'} color={'red'}>
@@ -59,7 +74,7 @@ export function Register({ setLoading }: { setLoading: React.Dispatch<React.SetS
                         {errors.email?.message}
                     </Text>
                     <FormLabel mt={'20px'}>CPF</FormLabel>
-                    <Input maxLength={14} {...register('cpf')} placeholder="Digite seu CPF" />
+                    <Input type="number" maxLength={14} {...register('cpf')} placeholder="Digite seu CPF" />
                     <Text fontSize={'14px'} color={'red'}>
                         {errors.cpf?.message}
                     </Text>

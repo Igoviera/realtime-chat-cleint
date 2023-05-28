@@ -1,6 +1,7 @@
 import { createContext } from 'react'
 import { useState, useEffect } from 'react'
 import {api} from '../services/api'
+import { useSession } from 'next-auth/react'
 
 interface ContextProps {
     children?: React.ReactNode
@@ -16,6 +17,8 @@ interface ContextType {
 export const Context = createContext<ContextType>({} as ContextType)
 
 export const ContextProvider = ({ children }: ContextProps) => {
+    const { data: session } = useSession()
+    const [loading, setLoading] = useState(false)
     const [chatList, setChatList] = useState([])
 
     async function fetchUsers() {
@@ -31,5 +34,5 @@ export const ContextProvider = ({ children }: ContextProps) => {
         fetchUsers()
     }, [])
 
-    return <Context.Provider value={{ chatList }}>{children}</Context.Provider>
+    return <Context.Provider value={{ chatList, session, loading, setLoading }}>{children}</Context.Provider>
 }

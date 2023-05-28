@@ -1,6 +1,16 @@
-import { VStack, FormLabel, Input, Button, Box, Text, Flex } from '@chakra-ui/react'
+import {
+    VStack,
+    FormLabel,
+    Input,
+    Button,
+    Box,
+    Text,
+    Flex,
+    InputRightElement,
+    InputGroup
+} from '@chakra-ui/react'
 
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -9,6 +19,8 @@ import { useRouter } from 'next/router'
 import { getServerSession } from 'next-auth'
 import { GetServerSideProps } from 'next'
 import { authOptions } from '../../pages/api/auth/[...nextauth]'
+import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai'
+import { Context } from '../../context/context'
 
 const schema = yup
     .object({
@@ -18,8 +30,10 @@ const schema = yup
     .required()
 type FormData = yup.InferType<typeof schema>
 
-export function Login({ setLoading }: { setLoading: React.Dispatch<React.SetStateAction<boolean>> }) {
+export function Login() {
+    const { setLoading }: any = useContext(Context)
     const [hasError, setHasError] = useState('')
+    const [showPassword, setShowPassword] = useState(false)
     const router = useRouter()
 
     const {
@@ -31,6 +45,7 @@ export function Login({ setLoading }: { setLoading: React.Dispatch<React.SetStat
     })
 
     const onSubmit = async (credentials: FormData) => {
+        setLoading(true)
         const { cpf, password } = credentials
 
         try {
@@ -43,12 +58,16 @@ export function Login({ setLoading }: { setLoading: React.Dispatch<React.SetStat
             if (request && request.ok) {
                 router.push('/')
             } else {
+                setLoading(false)
                 setHasError('CPF ou senha invalida!')
             }
         } catch (error) {
+            setLoading(false)
             setHasError('Error')
         }
     }
+
+    const isPassword = () => setShowPassword(!showPassword)
 
     return (
         <VStack>
@@ -64,12 +83,24 @@ export function Login({ setLoading }: { setLoading: React.Dispatch<React.SetStat
                         {errors.cpf?.message}
                     </Text>
                     <FormLabel mt={'20px'}>Password</FormLabel>
-                    <Input
-                        maxLength={55}
-                        type="password"
-                        {...register('password')}
-                        placeholder="Digite sua senha"
-                    />
+                    <InputGroup>
+                        <Input
+                            maxLength={55}
+                            type={showPassword ? 'text' : 'password'}
+                            {...register('password')}
+                            placeholder="Digite sua senha"
+                        />
+                        <InputRightElement>
+                            <Box cursor={'pointer'} onClick={isPassword}>
+                                {showPassword ? (
+                                    <AiOutlineEye color="#6d6d6dcc" size={20} />
+                                ) : (
+                                    <AiOutlineEyeInvisible color="#6d6d6dcc" size={20} />
+                                )}
+                            </Box>
+                        </InputRightElement>
+                    </InputGroup>
+
                     <Text mb={5} fontSize={'14px'} color={'red'}>
                         {errors.password?.message}
                     </Text>

@@ -5,29 +5,34 @@ import { AiOutlineArrowLeft, AiOutlineSend } from 'react-icons/ai'
 import { MdMoreVert, MdOutlineEmojiEmotions } from 'react-icons/md'
 import { MdClose } from 'react-icons/md'
 import EmojiPicker from 'emoji-picker-react'
-import { ReactEventHandler, useEffect, useState } from 'react'
+import { useContext, useEffect, useState, useRef } from 'react'
 import { MessageItem } from '../MessageItem'
-import { useSession } from 'next-auth/react'
 import { api } from '../../services/api'
+import { Context } from '../../context/context'
+import { Loading } from '../Loading'
 
 export function ChatWindow({ activeChat, setIsChatList, setActiveChat, socket }: any) {
-    const { data: session } = useSession()
+    const { session, loading, setLoading }: any = useContext(Context)
     const [emojiOpen, setEmojiOpen] = useState(false)
     const [text, setText] = useState('')
     const [messages2, setMessages2] = useState<any[]>([])
 
+    const body = useRef<HTMLDivElement>(null)
+
     const idSender = session?.user.user._id
+
+    // const chatContainerRef = useRef(null)
 
     // const username: string = session?.user.user.name
     // socket.emit('username', username)
 
     const handleKeyDown = (e: any) => {
-        if(e.key === 'Enter'){
+        if (e.key === 'Enter') {
             enviarMessage()
         }
     }
 
-    const enviarMessage = async () => {
+    const enviarMessage = () => {
         const message = {
             sender: idSender,
             recipient: activeChat._id,
@@ -38,17 +43,21 @@ export function ChatWindow({ activeChat, setIsChatList, setActiveChat, socket }:
     }
 
     const findAllMessage = async () => {
+        setLoading(true)
         try {
             const response = await api.get(`user/${session?.user.user._id}`, {
                 headers: {
                     Authorization: `Bearer ${session?.token}`
                 }
             })
-            const messages = response.data
-            if (messages) {
+
+            if (response.status === 200) {
+                setLoading(false)
+                const messages = response.data
                 setMessages2(messages.messages)
             }
         } catch (error) {
+            setLoading(false)
             console.log(error)
         }
     }
@@ -58,10 +67,13 @@ export function ChatWindow({ activeChat, setIsChatList, setActiveChat, socket }:
     }, [])
 
     useEffect(() => {
+        body.current?.scrollTo(0, body.current.scrollHeight)
+    }, [messages2])
+
+    useEffect(() => {
         socket.on('message', (message: any) => {
             setMessages2((prevMessages) => [...prevMessages, message])
-            findAllMessage()
-            scrollToBottom()
+            //findAllMessage()
         })
 
         return () => socket.off('message')
@@ -75,14 +87,6 @@ export function ChatWindow({ activeChat, setIsChatList, setActiveChat, socket }:
             findAllMessage()
         } catch (error) {
             console.log(error)
-        }
-    }
-
-    const scrollToBottom = () => {
-        const messagesEnd = document.getElementById('messages-end')
-
-        if (messagesEnd) {
-            messagesEnd.scrollIntoView({ behavior: 'smooth' })
         }
     }
 
@@ -124,7 +128,7 @@ export function ChatWindow({ activeChat, setIsChatList, setActiveChat, socket }:
                 <Flex gap={'15px'} alignItems={'center'} mr={'15px'}>
                     <BiSearch size={25} cursor={'pointer'} />
                     <Menu>
-                        <MenuButton as={Button}>
+                        <MenuButton>
                             <MdMoreVert size={25} cursor={'pointer'} />
                         </MenuButton>
                         <MenuList _hover={{ bg: '#F0F2F5' }}>
@@ -141,27 +145,41 @@ export function ChatWindow({ activeChat, setIsChatList, setActiveChat, socket }:
                 bg={'#E5DDD5'}
                 flex={'1'}
                 id="messages-end"
+                ref={body}
+                css={{
+                    '&::-webkit-scrollbar': {
+                        width: '4px'
+                    },
+                    '&::-webkit-scrollbar-track': {
+                        width: '6px'
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                        background: '#C4C3BF',
+                        borderRadius: '24px'
+                    }
+                }}
             >
-                {messages2?.map((item: any, key: number) => {
-                    const isSentByCurrentUser = item.sender === idSender
+                {loading ? (
+                    <Loading />
+                ) : (
+                    <>
+                        {messages2?.map((item: any, key: number) => {
+                            const isSentByCurrentUser = item.sender === idSender
 
-                    return (
-                        <Flex key={key} justifyContent={isSentByCurrentUser ? 'flex-end' : 'flex-start'}>
-                            <Flex>
-                                <MessageItem isSentByCurrentUser={isSentByCurrentUser} data={item} />
-                            </Flex>
-                        </Flex>
-                    )
-                })}
-                {/* {data.messages.map((item: any, key: number) => {
-                    const isSentByCurrentUser = item.sender === data._id
-
-                    return (
-                        <Flex key={key} justifyContent={isSentByCurrentUser ? 'flex-start' : 'flex-end'}>
-                            <MessageItem data={item} isSentByCurrentUser={isSentByCurrentUser} />
-                        </Flex>
-                    )
-                })} */}
+                            return (
+                                <Box
+                                    display={'flex'}
+                                    key={key}
+                                    justifyContent={isSentByCurrentUser ? 'flex-end' : 'flex-start'}
+                                >
+                                    <Flex>
+                                        <MessageItem isSentByCurrentUser={isSentByCurrentUser} data={item} />
+                                    </Flex>
+                                </Box>
+                            )
+                        })}
+                    </>
+                )}
             </Box>
             <Box
                 style={{ height: emojiOpen === true ? '450px' : '0px' }}
