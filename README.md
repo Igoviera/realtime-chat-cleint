@@ -6,6 +6,15 @@
  - NextAuth.js
  - React Hook Form 
 
+## Configuração
+Antes de executar o projeto, você precisa configurar as variáveis de ambiente. Crie um arquivo .env na raiz do projeto e adicione as seguintes variáveis:
+
+NEXT_PUBLIC_API_URL=http://localhost:5000
+
+NEXTAUTH_URL=http://localhost:3000
+
+NEXTAUTH_SECRET=
+
 ## Como rodar a aplicação
 Clone o repositório e execute o seguinte comando no diretório do projeto para instalar as dependencias:
 ```bash
