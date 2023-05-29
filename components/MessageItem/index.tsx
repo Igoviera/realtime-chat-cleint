@@ -7,7 +7,8 @@ interface MessageItemProps {
 }
 
 export function MessageItem({ data, isSentByCurrentUser }: MessageItemProps) {
-    const date = new Date(data?.createdAt)
+    // console.log("🚀 data:", data)
+    const date = new Date(data.createdAt)
 
     // const options = {}
     // const dateHoras = date.toLocaleTimeString('pt-br', { hour: '2-digit', minute: '2-digit' })

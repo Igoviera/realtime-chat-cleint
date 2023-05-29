@@ -1,17 +1,14 @@
-import { Box, Text, Flex, Avatar, AvatarBadge, Container, Center } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { Box, Text, Flex, Avatar, AvatarBadge, Center } from '@chakra-ui/react'
+import { User } from '../../types/user'
+import { use, useEffect, useState } from 'react'
 
-export function ChatList({ user, onClick, socket }: any) {
-    const [notification, setNotification] = useState(0)
+interface ChatListProps {
+    user: User
+    onClick: () => void
+}
 
-    useEffect(() => {
-        socket.on('message', (message: any) => {
-            setNotification((preNotification) => preNotification + 1)
-        })
-
-        return () => socket.off('message')
-    }, [])
-
+export function ChatList({ user, onClick }: ChatListProps) {
+    
     return (
         <Flex
             onClick={onClick}
@@ -63,9 +60,8 @@ export function ChatList({ user, onClick, socket }: any) {
                             {item.message}
                         </Text>
                     ))} */}
-
-                    {notification > 0 && (
-                        <Center
+                   
+                        {/* <Center
                             fontSize={'12px'}
                             color={'white'}
                             w={'20px'}
@@ -74,8 +70,8 @@ export function ChatList({ user, onClick, socket }: any) {
                             borderRadius={'50%'}
                         >
                             {notification}
-                        </Center>
-                    )}
+                        </Center> */}
+                
                 </Flex>
             </Box>
         </Flex>

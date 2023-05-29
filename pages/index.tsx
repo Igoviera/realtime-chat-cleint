@@ -3,7 +3,6 @@ import {
     Box,
     Text,
     Input,
-    Button,
     Flex,
     Image,
     InputGroup,
@@ -12,8 +11,7 @@ import {
     MenuList,
     Menu,
     MenuItem,
-    HStack,
-    Select
+    HStack
 } from '@chakra-ui/react'
 import { BsChatLeftTextFill } from 'react-icons/bs'
 import { MdMoreVert } from 'react-icons/md'
@@ -25,17 +23,17 @@ import { ChatWindow } from '../components/chatWindow'
 import { Context } from '../context/context'
 import { useContext } from 'react'
 import { getSession, signOut, useSession } from 'next-auth/react'
-import { io } from 'socket.io-client'
+import { io, Socket } from 'socket.io-client'
 import { User } from '../types/user'
 import Head from 'next/head'
-import { Loading } from '../components/Loading'
 
 const Home: NextPage = () => {
     const { data: session } = useSession()
-    const { chatList, loading }: any = useContext(Context)
-    const [socket, setSocket] = useState<any>(null)
+    const { chatList } = useContext(Context)
+    const [socket, setSocket] = useState<Socket | null>(null)
     const [activeChat, setActiveChat] = useState<User | undefined>(undefined)
-    const [isChatList, setIsChatList] = useState(true)
+    const [isChatList, setIsChatList] = useState<boolean>(true)
+
     const userList = chatList?.filter((item: any) => item._id !== session?.user.user._id)
 
     const handleChatItemClick = (item: User) => {
@@ -87,7 +85,7 @@ const Home: NextPage = () => {
                                     h={'40px'}
                                     borderRadius={'50%'}
                                     cursor={'pointer'}
-                                    src="https://i.pinimg.com/550x/dc/09/91/dc0991a2ee29b9dff675f4911d32d4d1.jpg"
+                                    src="https://www.w3schools.com/howto/img_avatar2.png"
                                 />
                                 <Text>Olá, {session?.user.user.name}</Text>
                             </HStack>
@@ -138,12 +136,7 @@ const Home: NextPage = () => {
                             }}
                         >
                             {userList.map((item: User, key: number) => (
-                                <ChatList
-                                    socket={socket}
-                                    key={key}
-                                    onClick={() => handleChatItemClick(item)}
-                                    user={item}
-                                />
+                                <ChatList key={key} onClick={() => handleChatItemClick(item)} user={item} />
                             ))}
                         </Box>
                     </Box>

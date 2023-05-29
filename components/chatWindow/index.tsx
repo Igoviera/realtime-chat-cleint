@@ -11,8 +11,8 @@ import { api } from '../../services/api'
 import { Context } from '../../context/context'
 import { Loading } from '../Loading'
 
-export function ChatWindow({ activeChat, setIsChatList, setActiveChat, socket }: any) {
-    const { session, loading, setLoading }: any = useContext(Context)
+export function ChatWindow({ activeChat, setIsChatList, socket, setActiveChat }: any) {
+    const { session, loading, setLoading } = useContext(Context)
     const [emojiOpen, setEmojiOpen] = useState(false)
     const [text, setText] = useState('')
     const [messages2, setMessages2] = useState<any[]>([])
@@ -21,24 +21,20 @@ export function ChatWindow({ activeChat, setIsChatList, setActiveChat, socket }:
 
     const idSender = session?.user.user._id
 
-    // const chatContainerRef = useRef(null)
-
-    // const username: string = session?.user.user.name
-    // socket.emit('username', username)
-
     const handleKeyDown = (e: any) => {
         if (e.key === 'Enter') {
             enviarMessage()
         }
     }
 
-    const enviarMessage = () => {
+    const enviarMessage = async () => {
         const message = {
             sender: idSender,
             recipient: activeChat._id,
-            message: text
+            message: text,
+            createdAt: new Date()
         }
-        socket.emit('message', message)
+        await socket.emit('message', message)
         setText('')
     }
 
@@ -53,8 +49,8 @@ export function ChatWindow({ activeChat, setIsChatList, setActiveChat, socket }:
 
             if (response.status === 200) {
                 setLoading(false)
-                const messages = response.data
-                setMessages2(messages.messages)
+                const messages = response.data.messages
+                setMessages2(messages)
             }
         } catch (error) {
             setLoading(false)
@@ -72,7 +68,7 @@ export function ChatWindow({ activeChat, setIsChatList, setActiveChat, socket }:
 
     useEffect(() => {
         socket.on('message', (message: any) => {
-            setMessages2((prevMessages) => [...prevMessages, message])
+            setMessages2((prevMessages: any) => [...prevMessages, message])
             //findAllMessage()
         })
 

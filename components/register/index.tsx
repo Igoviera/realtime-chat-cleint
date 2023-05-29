@@ -5,6 +5,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import axios from 'axios'
 import { Context } from '../../context/context'
+import { User } from '../../types/user'
 
 const schema = yup
     .object({
@@ -17,7 +18,6 @@ const schema = yup
 type FormData = yup.InferType<typeof schema>
 
 export function Register() {
-    const { setLoading }: any = useContext(Context)
     const [alert, setAlert] = useState('')
 
     const {
