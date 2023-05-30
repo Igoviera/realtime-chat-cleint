@@ -6,6 +6,12 @@
  - NextAuth.js
  - React Hook Form 
 
+## Funcionalidades
+ - Cadastrar usuario
+ - Fazer login
+ - Enviar mesagens 
+ - Excluir mensagens 
+
 ## Configuração
 Antes de executar o projeto, você precisa configurar as variáveis de ambiente. Crie um arquivo .env na raiz do projeto e adicione as seguintes variáveis:
 

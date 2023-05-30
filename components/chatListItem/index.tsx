@@ -8,7 +8,6 @@ interface ChatListProps {
 }
 
 export function ChatList({ user, onClick }: ChatListProps) {
-    
     return (
         <Flex
             onClick={onClick}
@@ -19,9 +18,15 @@ export function ChatList({ user, onClick }: ChatListProps) {
             h={'70px'}
             mr={'5px'}
         >
-            <Avatar ml={'15px'} src={user.img}>
-                <AvatarBadge boxSize="0.9em" bg="green.500" />
-            </Avatar>
+            {user.status ? (
+                <Avatar ml={'15px'} src={user.img}>
+                    <AvatarBadge boxSize="0.9em" bg="green.500" />
+                </Avatar>
+            ) : (
+                <Avatar ml={'15px'} src={user.img}>
+                    <AvatarBadge boxSize="0.9em" bg="gray.500" />
+                </Avatar>
+            )}
 
             {/* <Image ml={'15px'} w={'50px'} h={'50px'} borderRadius={'50%'} src={data.img} /> */}
             <Box
@@ -60,8 +65,8 @@ export function ChatList({ user, onClick }: ChatListProps) {
                             {item.message}
                         </Text>
                     ))} */}
-                   
-                        {/* <Center
+
+                    {/* <Center
                             fontSize={'12px'}
                             color={'white'}
                             w={'20px'}
@@ -71,7 +76,6 @@ export function ChatList({ user, onClick }: ChatListProps) {
                         >
                             {notification}
                         </Center> */}
-                
                 </Flex>
             </Box>
         </Flex>

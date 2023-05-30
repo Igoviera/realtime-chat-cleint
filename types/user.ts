@@ -5,6 +5,7 @@ export interface User {
     password: string;
     img: string;
     cpf: string;
+    status: boolean;
     createdAt: Date;
     messages: Message[];
 }

@@ -16,21 +16,19 @@ import {
 import { BsChatLeftTextFill } from 'react-icons/bs'
 import { MdMoreVert } from 'react-icons/md'
 import { BiSearch } from 'react-icons/bi'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { ChatList } from '../components/chatListItem'
 import { ChatIntro } from '../components/chatIntro'
 import { ChatWindow } from '../components/chatWindow'
 import { Context } from '../context/context'
 import { useContext } from 'react'
 import { getSession, signOut, useSession } from 'next-auth/react'
-import { io, Socket } from 'socket.io-client'
 import { User } from '../types/user'
 import Head from 'next/head'
 
 const Home: NextPage = () => {
     const { data: session } = useSession()
     const { chatList } = useContext(Context)
-    const [socket, setSocket] = useState<Socket | null>(null)
     const [activeChat, setActiveChat] = useState<User | undefined>(undefined)
     const [isChatList, setIsChatList] = useState<boolean>(true)
 
@@ -39,20 +37,6 @@ const Home: NextPage = () => {
     const handleChatItemClick = (item: User) => {
         setActiveChat(item)
         setIsChatList(false)
-    }
-
-    useEffect(() => {
-        const newSocket = io('http://localhost:5000')
-        setSocket(newSocket)
-
-        return () => {
-            newSocket.disconnect()
-        }
-    }, [])
-
-    if (!socket) {
-        // Pode renderizar um indicador de carregamento ou retornar null
-        return null
     }
 
     return (
@@ -146,7 +130,6 @@ const Home: NextPage = () => {
                         <ChatWindow
                             setIsChatList={setIsChatList}
                             setActiveChat={setActiveChat}
-                            socket={socket}
                             activeChat={activeChat}
                         />
                     )}

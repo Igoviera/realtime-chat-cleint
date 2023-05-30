@@ -11,8 +11,8 @@ import { api } from '../../services/api'
 import { Context } from '../../context/context'
 import { Loading } from '../Loading'
 
-export function ChatWindow({ activeChat, setIsChatList, socket, setActiveChat }: any) {
-    const { session, loading, setLoading } = useContext(Context)
+export function ChatWindow({ activeChat, setIsChatList, setActiveChat }: any) {
+    const { session, loading, setLoading, socket } = useContext(Context)
     const [emojiOpen, setEmojiOpen] = useState(false)
     const [text, setText] = useState('')
     const [messages2, setMessages2] = useState<any[]>([])
@@ -34,7 +34,7 @@ export function ChatWindow({ activeChat, setIsChatList, socket, setActiveChat }:
             message: text,
             createdAt: new Date()
         }
-        await socket.emit('message', message)
+        await socket?.emit('message', message)
         setText('')
     }
 
@@ -67,13 +67,16 @@ export function ChatWindow({ activeChat, setIsChatList, socket, setActiveChat }:
     }, [messages2])
 
     useEffect(() => {
-        socket.on('message', (message: any) => {
+        if (socket) {
+          socket.on('message', (message: any) => {
             setMessages2((prevMessages: any) => [...prevMessages, message])
-            //findAllMessage()
-        })
-
-        return () => socket.off('message')
-    }, [])
+          });
+      
+          return () => {
+            socket.off('message');
+          };
+        }
+      }, [socket]);
 
     const deleteMessages = async () => {
         try {
